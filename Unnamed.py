@@ -55,6 +55,10 @@ wait_cont = pygame.transform.scale(wait_cont, (300, 200))
 wait_opt1 = pygame.image.load(f'assets/options1.png')
 wait_opt1 = pygame.transform.scale(wait_opt1, (300, 200))
 
+opt_music = pygame.image.load(f'assets/MT.png')
+
+opt_music1 = pygame.image.load(f'assets/MF.png')
+
 wait_opt = pygame.image.load(f'assets/options.png')
 wait_opt = pygame.transform.scale(wait_opt, (300, 200))
 pygame.mixer.music.load('assets/sounds/bg.mp3')
@@ -67,8 +71,10 @@ with open('assets/st.txt', 'r', encoding='utf-8') as f:
     else:
         Hard = True
     if i[2] == '1':
-        pass
-        # pygame.mixer.music.play(-1)
+        sound = '1'
+        pygame.mixer.music.play(-1)
+    else:
+        sound = '0'
 
 def draw_wait_screen():
     screen.blit(wait_name1, (50, -150))
@@ -111,6 +117,15 @@ def guide_screen():
     pygame.display.update()
 
 def options_screen():
+    if Options == True and 15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
+        screen.blit(wait_back1, (-50, 665))
+    else:
+        screen.blit(wait_back, (-50, 665))
+    if sound == '1':
+        screen.blit(pygame.transform.scale(opt_music, (600, 150)), (50, 150))
+    else:
+        screen.blit(pygame.transform.scale(opt_music1, (600, 150)) , (50, 150))
+
     pygame.display.update()
 
 
@@ -128,30 +143,41 @@ while running:
                 Guide = True
                 wait_screen = False
                 anim = 0
+
             if Guide == True and 5 <= pygame.mouse.get_pos()[0] <= 195 and 755 <= pygame.mouse.get_pos()[1] <= 795:
                 Guide = False
                 wait_screen = True
-            if Options == False and wait_screen == True and \
+            if Options == False and wait_screen == True and Guide == False and \
                     210 <= pygame.mouse.get_pos()[0] <= 400 and 530 <= pygame.mouse.get_pos()[1] <= 570:
                 Options = True
                 wait_screen = False
+
             if Options == True and 5 <= pygame.mouse.get_pos()[0] <= 195 and 755 <= pygame.mouse.get_pos()[1] <= 795:
                 Options = False
                 wait_screen = True
+            if Options == True and 115 <= pygame.mouse.get_pos()[0] <= 530 and 210 <= pygame.mouse.get_pos()[1] <= 255:
+                if sound == '1':
+                    sound = '0'
+                else:
+                    sound = '1'
+                if sound == '1':
+                    pygame.mixer.music.play(-1)
+                else:
+                    pygame.mixer.music.stop()
+                with open('assets/st.txt', 'w', encoding='utf-8') as f:
+                    f.write(f'0;0;{sound};')
+
 
     screen.fill(pygame.Color("black"))
-    if wait_screen and Guide == False:
+    if wait_screen and Guide == False and Options == False:
         screen.blit(wait_bg, (-1250, 0))
         draw_wait_screen()
-
     if Guide:
         screen.blit(wait_bg1, (0, 0))
         guide_screen()
-    elif Guide == False and wait_screen == True:
-        screen.blit(wait_bg, (-1250, 0))
-        draw_wait_screen()
     elif Options:
         screen.blit(wait_bg1, (0, 0))
+        options_screen()
     print(pygame.mouse.get_pos(), int(clock.get_fps()))
     pygame.display.flip()
     clock.tick(FPS)
