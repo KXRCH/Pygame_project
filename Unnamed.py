@@ -15,7 +15,8 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 anim = 0
 pygame.display.set_caption('Space Fall')
-Hard = False
+Hard = True
+Options = False
 Guide = False
 wait_screen = True
 wait_bg = pygame.image.load(f'assets/bg.png')
@@ -56,12 +57,18 @@ wait_opt1 = pygame.transform.scale(wait_opt1, (300, 200))
 
 wait_opt = pygame.image.load(f'assets/options.png')
 wait_opt = pygame.transform.scale(wait_opt, (300, 200))
+pygame.mixer.music.load('assets/sounds/bg.mp3')
 
-if wait_screen:
-    pygame.mixer.music.load('assets/sounds/bg.mp3')
-    pygame.mixer.music.play(-1)
-else:
-    pygame.mixer.music.stop()
+with open('assets/st.txt', 'r', encoding='utf-8') as f:
+    i = f.read()
+    i = i.split(';')
+    if i[0] == '0':
+        Hard = False
+    else:
+        Hard = True
+    if i[2] == '1':
+        pass
+        # pygame.mixer.music.play(-1)
 
 def draw_wait_screen():
     screen.blit(wait_name1, (50, -150))
@@ -103,6 +110,9 @@ def guide_screen():
     anim += 1
     pygame.display.update()
 
+def options_screen():
+    pygame.display.update()
+
 
 running = True
 while running:
@@ -110,15 +120,24 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            wait_screen = False
+            pass
         if event.type == pygame.MOUSEBUTTONDOWN:
             wait_screen = True
             if Guide == False and wait_screen == True and \
                     210 <= pygame.mouse.get_pos()[0] <= 400 and 580 <= pygame.mouse.get_pos()[1] <= 620:
                 Guide = True
+                wait_screen = False
                 anim = 0
             if Guide == True and 5 <= pygame.mouse.get_pos()[0] <= 195 and 755 <= pygame.mouse.get_pos()[1] <= 795:
                 Guide = False
+                wait_screen = True
+            if Options == False and wait_screen == True and \
+                    210 <= pygame.mouse.get_pos()[0] <= 400 and 530 <= pygame.mouse.get_pos()[1] <= 570:
+                Options = True
+                wait_screen = False
+            if Options == True and 5 <= pygame.mouse.get_pos()[0] <= 195 and 755 <= pygame.mouse.get_pos()[1] <= 795:
+                Options = False
+                wait_screen = True
 
     screen.fill(pygame.Color("black"))
     if wait_screen and Guide == False:
@@ -131,8 +150,8 @@ while running:
     elif Guide == False and wait_screen == True:
         screen.blit(wait_bg, (-1250, 0))
         draw_wait_screen()
-    else:
-        screen.fill(pygame.Color("black"))
+    elif Options:
+        screen.blit(wait_bg1, (0, 0))
     print(pygame.mouse.get_pos(), int(clock.get_fps()))
     pygame.display.flip()
     clock.tick(FPS)
