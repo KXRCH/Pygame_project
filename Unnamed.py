@@ -19,8 +19,12 @@ Hard = True
 Options = False
 Guide = False
 wait_screen = True
+Prepair = False
+seconds = 0
+shipN = 0
 wait_bg = pygame.image.load(f'assets/bg.png')
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
+ships = [pygame.image.load(f'assets/ships/{i}.png').convert_alpha() for i in range(1, 27)]
 wait_text1 = pygame.image.load(f'assets/text1.png')
 wait_name1 = pygame.image.load(f'assets/name1.png')
 wait_text1 = pygame.transform.scale(wait_text1, (500, 500))
@@ -58,6 +62,9 @@ wait_opt1 = pygame.transform.scale(wait_opt1, (300, 200))
 opt_music = pygame.image.load(f'assets/MT.png')
 
 opt_music1 = pygame.image.load(f'assets/MF.png')
+
+arrow1 = pygame.image.load(f'assets/arrow1.png')
+arrow2 = pygame.image.load(f'assets/arrow2.png')
 
 wait_opt = pygame.image.load(f'assets/options.png')
 wait_opt = pygame.transform.scale(wait_opt, (300, 200))
@@ -125,7 +132,21 @@ def options_screen():
         screen.blit(pygame.transform.scale(opt_music, (600, 150)), (50, 150))
     else:
         screen.blit(pygame.transform.scale(opt_music1, (600, 150)) , (50, 150))
+    pygame.display.update()
+def prepair_screen():
+    global  shipN
+    global anim
+    if anim + 1 >= FPS:
+        anim = 0
+    if Prepair == True and 15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
+        screen.blit(wait_back1, (-50, 665))
+    else:
+        screen.blit(wait_back, (-50, 665))
 
+    screen.blit(pygame.transform.scale(arrow1, (45, 50)), (380, 393))
+    screen.blit(pygame.transform.scale(arrow2, (45, 50)), (170, 400))
+    anim += 1
+    screen.blit(pygame.transform.scale(ships[0], (150, 150)), (225, 350))
     pygame.display.update()
 
 
@@ -137,8 +158,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             pass
         if event.type == pygame.MOUSEBUTTONDOWN:
-            wait_screen = True
-            if Guide == False and wait_screen == True and \
+            if Guide == False and Options == False and wait_screen == True and Prepair == False and \
                     210 <= pygame.mouse.get_pos()[0] <= 400 and 580 <= pygame.mouse.get_pos()[1] <= 620:
                 Guide = True
                 wait_screen = False
@@ -166,10 +186,27 @@ while running:
                     pygame.mixer.music.stop()
                 with open('assets/st.txt', 'w', encoding='utf-8') as f:
                     f.write(f'0;0;{sound};')
+            if Guide == False and wait_screen == True and Options == False and \
+                    210 <= pygame.mouse.get_pos()[0] <= 400 and 480 <= pygame.mouse.get_pos()[1] <= 520:
+                seconds = 0
+                screen.fill(pygame.Color("black"))
+                wait_screen = False
+                Prepair = True
+            if Prepair == True and Guide == False and Options == False and wait_screen == False and \
+                    15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
+                Prepair = False
+                wait_screen = True
+            if Prepair == True and Guide == False and Options == False and wait_screen == False and \
+                    170 <= pygame.mouse.get_pos()[0] <= 210 and 405 <= pygame.mouse.get_pos()[1] <= 440:
+                shipN -= 1
+
+            if Prepair == True and Guide == False and Options == False and wait_screen == False and \
+                    380 <= pygame.mouse.get_pos()[0] <= 425 and 400 <= pygame.mouse.get_pos()[1] <= 435:
+                shipN += 1
 
 
     screen.fill(pygame.Color("black"))
-    if wait_screen and Guide == False and Options == False:
+    if wait_screen and Guide == False and Options == False and Prepair == False:
         screen.blit(wait_bg, (-1250, 0))
         draw_wait_screen()
     if Guide:
@@ -178,6 +215,10 @@ while running:
     elif Options:
         screen.blit(wait_bg1, (0, 0))
         options_screen()
+    elif Prepair:
+        screen.blit(wait_bg1, (0, 0))
+        prepair_screen()
+
     print(pygame.mouse.get_pos(), int(clock.get_fps()))
     pygame.display.flip()
     clock.tick(FPS)
