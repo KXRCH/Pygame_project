@@ -6,11 +6,13 @@ from pygame.locals import *
 pygame.init()
 pygame.mixer.init()
 
-
+n = -800
+n1 = -1600
 FPS = 60
 TRIG_FRAME = 5
 WIDTH = 600
 HEIGHT = 800
+x, y = 225, 450
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 anim = 0
@@ -20,11 +22,20 @@ Options = False
 Guide = False
 wait_screen = True
 Prepair = False
+game = False
+RIGHT = False
+DOWN = False
+UP = False
+LEFT = False
 seconds = 0
 shipN = 0
+x1 = 0
+y1 = 0
+lvl1_bg = pygame.image.load(f'assets/game1.jpg')
+lvl1_bg1 = pygame.image.load(f'assets/game1.jpg')
 wait_bg = pygame.image.load(f'assets/bg.png')
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
-ships = [pygame.image.load(f'assets/ships/{i}.png').convert_alpha() for i in range(1, 27)]
+ships = [pygame.image.load(f'assets/ships/ship ({i}).png').convert_alpha() for i in range(1, 16)]
 wait_text1 = pygame.image.load(f'assets/text1.png')
 wait_name1 = pygame.image.load(f'assets/name1.png')
 wait_text1 = pygame.transform.scale(wait_text1, (500, 500))
@@ -133,6 +144,7 @@ def options_screen():
     else:
         screen.blit(pygame.transform.scale(opt_music1, (600, 150)) , (50, 150))
     pygame.display.update()
+
 def prepair_screen():
     global  shipN
     global anim
@@ -143,11 +155,17 @@ def prepair_screen():
     else:
         screen.blit(wait_back, (-50, 665))
 
+
     screen.blit(pygame.transform.scale(arrow1, (45, 50)), (380, 393))
     screen.blit(pygame.transform.scale(arrow2, (45, 50)), (170, 400))
-    anim += 1
-    screen.blit(pygame.transform.scale(ships[0], (150, 150)), (225, 350))
+    screen.blit(pygame.transform.scale(ships[shipN], (150, 150)), (225, 350))
     pygame.display.update()
+
+def game_lvl1():
+    screen.blit(pygame.transform.scale(ships[shipN], (105, 105)), (x, y))
+    pygame.display.update()
+
+
 
 
 running = True
@@ -156,7 +174,26 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            pass
+            if event.key == pygame.K_LEFT:
+                LEFT = True
+                x1 = 8
+            if event.key == pygame.K_RIGHT:
+                RIGHT = True
+                x1 = 8
+            if event.key == pygame.K_DOWN:
+                DOWN = True
+                y1 = 8
+            if event.key == pygame.K_UP:
+                UP = True
+                y1 = 8
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                RIGHT, LEFT = False, False
+                x1 = 0
+            if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
+                UP, DOWN = False, False
+                y1 = 0
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if Guide == False and Options == False and wait_screen == True and Prepair == False and \
                     210 <= pygame.mouse.get_pos()[0] <= 400 and 580 <= pygame.mouse.get_pos()[1] <= 620:
@@ -192,21 +229,34 @@ while running:
                 screen.fill(pygame.Color("black"))
                 wait_screen = False
                 Prepair = True
+
             if Prepair == True and Guide == False and Options == False and wait_screen == False and \
                     15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
                 Prepair = False
                 wait_screen = True
+
             if Prepair == True and Guide == False and Options == False and wait_screen == False and \
                     170 <= pygame.mouse.get_pos()[0] <= 210 and 405 <= pygame.mouse.get_pos()[1] <= 440:
-                shipN -= 1
+                if shipN == 0:
+                    pass
+                else:
+                    shipN -= 1
+                print(shipN)
 
             if Prepair == True and Guide == False and Options == False and wait_screen == False and \
                     380 <= pygame.mouse.get_pos()[0] <= 425 and 400 <= pygame.mouse.get_pos()[1] <= 435:
-                shipN += 1
+                if shipN == 14:
+                    pass
+                else:
+                    shipN += 1
+                print(shipN)
+                game = True
+                Prepair = False
+
 
 
     screen.fill(pygame.Color("black"))
-    if wait_screen and Guide == False and Options == False and Prepair == False:
+    if wait_screen and Guide == False and Options == False and Prepair == False and game == False:
         screen.blit(wait_bg, (-1250, 0))
         draw_wait_screen()
     if Guide:
@@ -218,8 +268,31 @@ while running:
     elif Prepair:
         screen.blit(wait_bg1, (0, 0))
         prepair_screen()
+    elif game:
+        screen.fill((0, 0, 0))
+        if LEFT:
+            if x <= 1:
+                pass
+            else:
+                x -= x1
+        if RIGHT:
+            if x >= 490:
+                pass
+            else:
+                x += x1
+        if UP:
+            if y <= 450:
+                pass
+            else:
+                y -= y1
+        if DOWN:
+            if y >= 690:
+                pass
+            else:
+                y += y1
+        game_lvl1()
 
-    print(pygame.mouse.get_pos(), int(clock.get_fps()))
+    print(pygame.mouse.get_pos(), int(clock.get_fps()), game, Prepair, x, y)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
