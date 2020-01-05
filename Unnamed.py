@@ -1,6 +1,7 @@
 import os
 import pygame
 from pygame.locals import *
+from pygame.sprite import Sprite
 
 
 pygame.init()
@@ -9,10 +10,13 @@ pygame.mixer.init()
 n = -800
 n1 = -1600
 FPS = 60
-TRIG_FRAME = 5
+bg_y = -800
+bg_y1 = -1600
+ch_y = 5
+ch_y1 = 0
 WIDTH = 600
 HEIGHT = 800
-x, y = 225, 450
+x, y = 248, 690
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 anim = 0
@@ -28,11 +32,12 @@ DOWN = False
 UP = False
 LEFT = False
 seconds = 0
-shipN = 0
+shipN = 1
 x1 = 0
 y1 = 0
+shots = [pygame.transform.scale(pygame.image.load(f'assets/shots/shot{i}.png').convert_alpha(), (35, 35))\
+         for i in range(1, 4)]
 lvl1_bg = pygame.image.load(f'assets/game1.jpg')
-lvl1_bg1 = pygame.image.load(f'assets/game1.jpg')
 wait_bg = pygame.image.load(f'assets/bg.png')
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
 ships = [pygame.image.load(f'assets/ships/ship ({i}).png').convert_alpha() for i in range(1, 16)]
@@ -93,7 +98,10 @@ with open('assets/st.txt', 'r', encoding='utf-8') as f:
         pygame.mixer.music.play(-1)
     else:
         sound = '0'
-
+class Roll(Sprite):
+    def __init__(self):
+        super.__init__()
+        self.roll_speed = 16
 def draw_wait_screen():
     screen.blit(wait_name1, (50, -150))
     if Hard == False:
@@ -147,9 +155,6 @@ def options_screen():
 
 def prepair_screen():
     global  shipN
-    global anim
-    if anim + 1 >= FPS:
-        anim = 0
     if Prepair == True and 15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
         screen.blit(wait_back1, (-50, 665))
     else:
@@ -162,6 +167,13 @@ def prepair_screen():
     pygame.display.update()
 
 def game_lvl1():
+    global anim
+    if anim + 1 >= FPS:
+        anim = 0
+    screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y1))
+    screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y))
+    screen.blit(shots[anim // 20], (0, 0))
+    anim += 1
     screen.blit(pygame.transform.scale(ships[shipN], (105, 105)), (x, y))
     pygame.display.update()
 
@@ -186,6 +198,9 @@ while running:
             if event.key == pygame.K_UP:
                 UP = True
                 y1 = 8
+            if event.key == pygame.K_ESCAPE and game is True:
+                wait_screen = True
+                game = False
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 RIGHT, LEFT = False, False
@@ -252,6 +267,7 @@ while running:
                 print(shipN)
                 game = True
                 Prepair = False
+                pygame.mixer.music.stop()
 
 
 
@@ -269,7 +285,16 @@ while running:
         screen.blit(wait_bg1, (0, 0))
         prepair_screen()
     elif game:
-        screen.fill((0, 0, 0))
+        if bg_y + 5 >= 0:
+            ch_y1 = 5
+        if bg_y + 5 >= 800:
+            bg_y = -1600
+            ch_y = 0
+        if bg_y1 + 5 >= 0:
+            ch_y = 5
+        if bg_y1 + 5 >= 800:
+            bg_y1 = -1600
+            ch_y1 = 0
         if LEFT:
             if x <= 1:
                 pass
@@ -291,8 +316,16 @@ while running:
             else:
                 y += y1
         game_lvl1()
+    else:
+        x, y = 248, 690
+        bg_y = -800
+        bg_y1 = -1600
+        ch_y = 5
+        ch_y1 = 0
+    bg_y += ch_y
+    bg_y1 += ch_y1
 
-    print(pygame.mouse.get_pos(), int(clock.get_fps()), game, Prepair, x, y)
+    print(pygame.mouse.get_pos(), int(clock.get_fps()), game, Prepair, x, y, shipN, bg_y)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
