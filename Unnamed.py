@@ -1,5 +1,6 @@
 import os
 import pygame
+import random
 from pygame.locals import *
 from pygame.sprite import Sprite
 
@@ -7,6 +8,8 @@ from pygame.sprite import Sprite
 pygame.init()
 pygame.mixer.init()
 
+shootTiming = 0
+score = 0
 n = -800
 n1 = -1600
 FPS = 60
@@ -32,15 +35,20 @@ DOWN = False
 UP = False
 LEFT = False
 seconds = 0
-shipN = 1
+shipN = 0
 x1 = 0
 y1 = 0
+sound1 = pygame.mixer.Sound('assets/sounds/Pew__005.ogg')
+sound2 = pygame.mixer.Sound('assets/sounds/music1.ogg')
+sound2.set_volume(0.3)
+ast = [pygame.transform.scale(pygame.image.load(f'assets/Asteroids/Mini/{i}.png').convert_alpha(), (85, 85))\
+       for i in range(1, 13)]
 shots = [pygame.transform.scale(pygame.image.load(f'assets/shots/shot{i}.png').convert_alpha(), (35, 35))\
          for i in range(1, 4)]
-lvl1_bg = pygame.image.load(f'assets/game1.jpg')
+lvl1_bg = pygame.image.load(f'assets/game21.jpg')
 wait_bg = pygame.image.load(f'assets/bg.png')
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
-ships = [pygame.image.load(f'assets/ships/ship ({i}).png').convert_alpha() for i in range(1, 16)]
+ships = [ pygame.transform.scale(pygame.image.load(f'assets/ships/ship ({i}).png'), (95, 95)).convert_alpha() for i in range(1, 16)]
 wait_text1 = pygame.image.load(f'assets/text1.png')
 wait_name1 = pygame.image.load(f'assets/name1.png')
 wait_text1 = pygame.transform.scale(wait_text1, (500, 500))
@@ -86,6 +94,7 @@ wait_opt = pygame.image.load(f'assets/options.png')
 wait_opt = pygame.transform.scale(wait_opt, (300, 200))
 pygame.mixer.music.load('assets/sounds/bg.mp3')
 
+
 with open('assets/st.txt', 'r', encoding='utf-8') as f:
     i = f.read()
     i = i.split(';')
@@ -95,13 +104,86 @@ with open('assets/st.txt', 'r', encoding='utf-8') as f:
         Hard = True
     if i[2] == '1':
         sound = '1'
+
         pygame.mixer.music.play(-1)
     else:
         sound = '0'
-class Roll(Sprite):
+
+
+class Mob(pygame.sprite.Sprite):
     def __init__(self):
-        super.__init__()
-        self.roll_speed = 16
+        pygame.sprite.Sprite.__init__(self)
+        self.image = ast[random.randint(0, 11)]
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(WIDTH - self.rect.width)
+        self.rect.y = random.randrange(-100, -40)
+        self.speedy = random.randrange(3, 5)
+
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.top > HEIGHT + 10:
+            self.rect.x = random.randrange(WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-200, -40)
+            self.speedy = random.randrange(3, 5)
+        if self.rect.top >= HEIGHT:
+            self.kill()
+
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = shots[random.randint(0, len(shots) - 1)]
+        self.rect = self.image.get_rect()
+        self.rect.bottom = y
+        self.rect.centerx = x
+        self.speedy = -8
+
+    def update(self):
+        self.rect.y += self.speedy
+        # убить, если он заходит за верхнюю часть экрана
+        if self.rect.bottom <= 0:
+            self.kill()
+
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = ships[shipN]
+        self.rect = self.image.get_rect()
+        self.rect.centerx = WIDTH / 2
+        self.rect.bottom = HEIGHT - 10
+        self.speedx = 0
+        self.speedY = 0
+
+    def update(self):
+        self.speedx = 0
+        self.speedY = 0
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.speedx = -5
+        if keys[pygame.K_RIGHT]:
+            self.speedx = 5
+        if keys[pygame.K_UP]:
+            self.speedY = -5
+        if keys[pygame.K_DOWN]:
+            self.speedY = 5
+        self.rect.x += self.speedx
+        self.rect.y += self.speedY
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.bottom > HEIGHT - 10:
+            self.rect.bottom = HEIGHT - 10
+        if self.rect.top < HEIGHT // 2:
+            self.rect.top = HEIGHT // 2
+
+    def shoot(self):
+        sound1.play()
+        bullet = Bullet(self.rect.centerx, self.rect.top)
+        all_sprites.add(bullet)
+        bullets.add(bullet)
+
 def draw_wait_screen():
     screen.blit(wait_name1, (50, -150))
     if Hard == False:
@@ -167,15 +249,26 @@ def prepair_screen():
     pygame.display.update()
 
 def game_lvl1():
-    global anim
-    if anim + 1 >= FPS:
-        anim = 0
+
+    if len(mobs) != 0:
+        pass
+    else:
+        if score >= 250:
+            for i in range(random.randint(2, 10)):
+                m = Mob()
+                all_sprites.add(m)
+                mobs.add(m)
+    all_sprites.update()
+    all_sprites.draw(screen)
+
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y1))
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y))
-    screen.blit(shots[anim // 20], (0, 0))
-    anim += 1
-    screen.blit(pygame.transform.scale(ships[shipN], (105, 105)), (x, y))
+    all_sprites.draw(screen)
     pygame.display.update()
+
+all_sprites = pygame.sprite.Group()
+mobs = pygame.sprite.Group()
+bullets = pygame.sprite.Group
 
 
 
@@ -185,31 +278,30 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                LEFT = True
-                x1 = 8
-            if event.key == pygame.K_RIGHT:
-                RIGHT = True
-                x1 = 8
-            if event.key == pygame.K_DOWN:
-                DOWN = True
-                y1 = 8
-            if event.key == pygame.K_UP:
-                UP = True
-                y1 = 8
-            if event.key == pygame.K_ESCAPE and game is True:
-                wait_screen = True
+        if event.type == pygame.KEYDOWN and game is True:
+            if event.key == pygame.K_ESCAPE:
                 game = False
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                RIGHT, LEFT = False, False
-                x1 = 0
-            if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
-                UP, DOWN = False, False
-                y1 = 0
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
+                wait_screen = True
+                score = 0
+                mobs = set()
+                all_sprites = pygame.sprite.Group()
+                sound2.stop()
+                shootTiming = 0
+            if event.key == pygame.K_SPACE:
+                if score - shootTiming >= 15:
+                    player.shoot()
+                    shootTiming = score
+        if event.type == pygame.KEYDOWN and game is False:
+            if event.key == pygame.K_TAB:
+                game = True
+                for i in mobs:
+                    i.kill()
+                x, y = 248, 690
+                bg_y = -800
+                bg_y1 = -1600
+                ch_y = 5
+                ch_y1 = 0
+    if event.type == pygame.MOUSEBUTTONDOWN:
             if Guide == False and Options == False and wait_screen == True and Prepair == False and \
                     210 <= pygame.mouse.get_pos()[0] <= 400 and 580 <= pygame.mouse.get_pos()[1] <= 620:
                 Guide = True
@@ -252,7 +344,7 @@ while running:
 
             if Prepair == True and Guide == False and Options == False and wait_screen == False and \
                     170 <= pygame.mouse.get_pos()[0] <= 210 and 405 <= pygame.mouse.get_pos()[1] <= 440:
-                if shipN == 0:
+                if shipN - 1 < 0:
                     pass
                 else:
                     shipN -= 1
@@ -263,15 +355,15 @@ while running:
                 if shipN == 14:
                     pass
                 else:
+                    pygame.mixer.music.stop()
                     shipN += 1
-                print(shipN)
-                game = True
-                Prepair = False
-                pygame.mixer.music.stop()
+                    game = True
+                    Prepair = False
+                    player = Player()
+                    sound2.play(-1)
+                    all_sprites.add(player)
 
-
-
-    screen.fill(pygame.Color("black"))
+    all_sprites.update()
     if wait_screen and Guide == False and Options == False and Prepair == False and game == False:
         screen.blit(wait_bg, (-1250, 0))
         draw_wait_screen()
@@ -295,37 +387,19 @@ while running:
         if bg_y1 + 5 >= 800:
             bg_y1 = -1600
             ch_y1 = 0
-        if LEFT:
-            if x <= 1:
-                pass
-            else:
-                x -= x1
-        if RIGHT:
-            if x >= 490:
-                pass
-            else:
-                x += x1
-        if UP:
-            if y <= 450:
-                pass
-            else:
-                y -= y1
-        if DOWN:
-            if y >= 690:
-                pass
-            else:
-                y += y1
         game_lvl1()
+        score += 1
     else:
         x, y = 248, 690
         bg_y = -800
         bg_y1 = -1600
         ch_y = 5
         ch_y1 = 0
+
     bg_y += ch_y
     bg_y1 += ch_y1
-
-    print(pygame.mouse.get_pos(), int(clock.get_fps()), game, Prepair, x, y, shipN, bg_y)
+    print(all_sprites, shipN)
+    print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs), score)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
