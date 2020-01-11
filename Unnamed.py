@@ -35,7 +35,6 @@ DOWN = False
 UP = False
 LEFT = False
 LOSE = False
-global strength
 strength = 0
 invulnerability = 0
 seconds = 0
