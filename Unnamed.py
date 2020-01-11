@@ -12,7 +12,7 @@ shootTiming = 0
 score = 0
 n = -800
 n1 = -1600
-FPS = 60
+FPS = 120
 bg_y = -800
 bg_y1 = -1600
 ch_y = 5
@@ -34,6 +34,10 @@ RIGHT = False
 DOWN = False
 UP = False
 LEFT = False
+LOSE = False
+global strength
+strength = 0
+invulnerability = 0
 seconds = 0
 shipN = 0
 sound1 = pygame.mixer.Sound('assets/sounds/sfx_wpn_laser6.wav')
@@ -41,14 +45,26 @@ sound1.set_volume(0.4)
 sound2 = pygame.mixer.Sound('assets/sounds/music1.ogg')
 pygame.mixer.music.load('assets/sounds/bg.mp3')
 sound2.set_volume(0.3)
+lose_sound = pygame.mixer.Sound('assets/sounds/sfx_sounds_negative1.wav')
+lose_sound.set_volume(0.1)
+dam_sound = pygame.mixer.Sound('assets/sounds/sfx_sounds_damage3.wav')
+dam_sound.set_volume(0.1)
 
 ast = [pygame.transform.scale(pygame.image.load(f'assets/Asteroids/Mini/{i}.png').convert_alpha(), (85, 85))\
        for i in range(1, 13)]
+
 shots = [pygame.transform.scale(pygame.image.load(f'assets/shots/shot{i}.png').convert_alpha(), (35, 35))\
          for i in range(1, 4)]
-ships = [ pygame.transform.scale(pygame.image.load(f'assets/ships/ship ({i}).png'), (95, 95)).convert_alpha()\
+
+ships = [pygame.transform.scale(pygame.image.load(f'assets/ships/ship ({i}).png'), (95, 95)).convert_alpha()\
           for i in range(1, 16)]
+
+ships1 = [pygame.transform.scale(pygame.image.load(f'assets/ships/ship ({i}).png'), (150, 150)).convert_alpha()\
+          for i in range(1, 16)]
+
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
+
+keys = pygame.image.load(f'assets/keys/key.png')
 
 lvl1_bg = pygame.image.load(f'assets/game21.jpg')
 
@@ -98,6 +114,8 @@ arrow2 = pygame.image.load(f'assets/arrow2.png')
 wait_opt = pygame.image.load(f'assets/options.png')
 wait_opt = pygame.transform.scale(wait_opt, (300, 200))
 
+lose_scr = pygame.image.load(f'assets/LOSE.png')
+
 global sound
 with open('assets/st.txt', 'r', encoding='utf-8') as f:
     i = f.read()
@@ -122,8 +140,8 @@ class Mob(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.radius = 22
         self.rect.x = random.randint(0, WIDTH - 70)
-        self.rect.y = random.randrange(-100, -40)
-        self.speedy = random.randrange(2, 4)
+        self.rect.y = random.randrange(-200, -40)
+        self.speedy = random.randrange(2, 3)
 
     def update(self):
         self.rect.y += self.speedy
@@ -151,20 +169,23 @@ class Bullet(pygame.sprite.Sprite):
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
+        global strength
         pygame.sprite.Sprite.__init__(self)
         self.image = ships[shipN]
         self.rect = self.image.get_rect()
         self.radius = 40
-        pygame.draw.circle(self.image, (255, 0, 0), self.rect.center, self.radius)
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
         self.speed = 0
         if shipN in [0, 1, 3, 9, 14]:
             self.speed = 3
+            strength = 3
         elif shipN in [2, 7, 8, 5, 6]:
             self.speed = 2
+            strength = 4
         elif shipN in [4, 10, 11, 12, 13]:
             self.speed = 1
+            strength = 5
         self.speedx = 0
         self.speedY = 0
 
@@ -194,9 +215,15 @@ class Player(pygame.sprite.Sprite):
         print(self.rect.x, self.rect.y, self.rect.left, self.rect.right)
 
     def shoot(self):
-        bullet = Bullet(self.rect.centerx, self.rect.top + 15)
-        all_sprites.add(bullet)
-        bullets.add(bullet)
+        if shipN in [4, 10, 11, 12, 13]:
+            bullet1 = Bullet(self.rect.centerx - 25, self.rect.top)
+            bullet2 = Bullet(self.rect.centerx + 25, self.rect.top)
+            all_sprites.add(bullet1, bullet2)
+            bullets.add(bullet1, bullet2)
+        else:
+            bullet = Bullet(self.rect.centerx, self.rect.top + 15)
+            all_sprites.add(bullet)
+            bullets.add(bullet)
 
 def draw_wait_screen():
     screen.blit(wait_name1, (50, -150))
@@ -225,12 +252,19 @@ def draw_wait_screen():
     pygame.display.update()
 
 
+def LOSE():
+    screen.blit(lose_scr, (0, 0))
+    lose_sound.play()
+    pygame.display.update()
+
+
 def guide_screen():
     global anim
     if anim + 1 >= FPS:
         anim = 0
     screen.blit(wait_text1, (0, 25))
-    screen.blit(pygame.transform.scale(fr[anim // 5].convert_alpha(), (300, 300)), (150, 350))
+    screen.blit(pygame.transform.scale(fr[anim // 6].convert_alpha(), (300, 300)), (150, 350))
+    draw_text(screen, ('For shooting use SPACE and LCtrl'), 35, WIDTH / 2, 10)
     if Guide == True and 15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
         screen.blit(wait_back1, (-50, 665))
     else:
@@ -260,11 +294,11 @@ def prepair_screen():
 
     screen.blit(pygame.transform.scale(arrow1, (45, 50)), (380, 393))
     screen.blit(pygame.transform.scale(arrow2, (45, 50)), (170, 400))
-    screen.blit(pygame.transform.scale(ships[shipN], (150, 150)), (225, 350))
+    screen.blit(pygame.transform.scale(ships1[shipN], (150, 150)), (225, 350))
     pygame.display.update()
 
 def game_lvl1():
-    if len(mobs) != 0:
+    if len(mobs) >= 3:
         pass
     else:
         if score >= 250:
@@ -276,8 +310,17 @@ def game_lvl1():
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y1))
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y))
     all_sprites.draw(screen)
+    draw_text(screen, (f'Score: {score}'), 25, WIDTH / 2, 10)
+    draw_text(screen, (f'Strength: {strength}'), 25, WIDTH - 100, 10)
     all_sprites.update()
     pygame.display.flip()
+
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font('C:/PyCharm Community Edition 2019.2.3/assets/aesymatt.ttf', size)
+    text_surface = font.render(text, True, (255, 255, 255))
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surface, text_rect)
 
 all_sprites = pygame.sprite.Group()
 player = Player()
@@ -303,6 +346,7 @@ while running:
                 if sound == '1':
                     pygame.mixer.music.play(-1)
                 shootTiming = 0
+                invulnerability = 0
 
             if event.key == pygame.K_SPACE:
                 if score - shootTiming >= 15:
@@ -315,7 +359,6 @@ while running:
                 game = True
                 for i in mobs:
                     i.kill()
-                # x, y = 248, 690
                 bg_y = -800
                 bg_y1 = -1600
                 ch_y = 5
@@ -324,6 +367,15 @@ while running:
                 shootTiming = 0
                 player.rect.centerx = WIDTH / 2
                 player.rect.bottom = HEIGHT - 10
+                if shipN in [0, 1, 3, 9, 14]:
+                    player.speed = 3
+                    strength = 3
+                elif shipN in [2, 7, 8, 5, 6]:
+                    player.speed = 2
+                    strength = 4
+                elif shipN in [4, 10, 11, 12, 13]:
+                    player.speed = 1
+                    strength = 5
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if Guide == False and Options == False and wait_screen == True and Prepair == False and \
@@ -396,9 +448,23 @@ while running:
             all_sprites.add(m)
             mobs.add(m)
 
-    hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
-    if hits:
-        game = False
+    hits1 = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
+    if hits1:
+        if strength >= 1:
+            if invulnerability == 0:
+                invulnerability = score
+                strength -= 1
+                dam_sound.play()
+            else:
+                if score - invulnerability >= 50:
+                    strength -= 1
+                    dam_sound.play()
+                    invulnerability = score
+        else:
+            dam_sound.play()
+            game = False
+            invulnerability = 0
+            LOSE()
 
     all_sprites.update()
     if wait_screen and Guide == False and Options == False and Prepair == False and game == False:
@@ -433,9 +499,9 @@ while running:
         ch_y = 5
         ch_y1 = 0
 
-
-    print(all_sprites, shipN)
-    print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs), score, game, wait_screen, Prepair, bg_y, bg_y1)
+    # print(all_sprites, shipN)
+    print(invulnerability, score)
+    # print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs), score, game, wait_screen, Prepair, bg_y, bg_y1)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
