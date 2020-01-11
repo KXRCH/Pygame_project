@@ -19,7 +19,7 @@ ch_y = 5
 ch_y1 = 0
 WIDTH = 600
 HEIGHT = 800
-x, y = 248, 690
+# x, y = 248, 430
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 anim = 0
@@ -36,21 +36,26 @@ UP = False
 LEFT = False
 seconds = 0
 shipN = 0
-x1 = 0
-y1 = 0
-sound1 = pygame.mixer.Sound('assets/sounds/Pew__005.ogg')
+sound1 = pygame.mixer.Sound('assets/sounds/sfx_wpn_laser6.wav')
+sound1.set_volume(0.4)
 sound2 = pygame.mixer.Sound('assets/sounds/music1.ogg')
+pygame.mixer.music.load('assets/sounds/bg.mp3')
 sound2.set_volume(0.3)
+
 ast = [pygame.transform.scale(pygame.image.load(f'assets/Asteroids/Mini/{i}.png').convert_alpha(), (85, 85))\
        for i in range(1, 13)]
 shots = [pygame.transform.scale(pygame.image.load(f'assets/shots/shot{i}.png').convert_alpha(), (35, 35))\
          for i in range(1, 4)]
-lvl1_bg = pygame.image.load(f'assets/game21.jpg')
-wait_bg = pygame.image.load(f'assets/bg.png')
+ships = [ pygame.transform.scale(pygame.image.load(f'assets/ships/ship ({i}).png'), (95, 95)).convert_alpha()\
+          for i in range(1, 16)]
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
-ships = [ pygame.transform.scale(pygame.image.load(f'assets/ships/ship ({i}).png'), (95, 95)).convert_alpha() for i in range(1, 16)]
+
+lvl1_bg = pygame.image.load(f'assets/game21.jpg')
+
+wait_bg = pygame.image.load(f'assets/bg.png')
 wait_text1 = pygame.image.load(f'assets/text1.png')
 wait_name1 = pygame.image.load(f'assets/name1.png')
+
 wait_text1 = pygame.transform.scale(wait_text1, (500, 500))
 wait_name1 = pygame.transform.scale(wait_name1, (500, 500))
 
@@ -92,9 +97,8 @@ arrow2 = pygame.image.load(f'assets/arrow2.png')
 
 wait_opt = pygame.image.load(f'assets/options.png')
 wait_opt = pygame.transform.scale(wait_opt, (300, 200))
-pygame.mixer.music.load('assets/sounds/bg.mp3')
 
-
+global sound
 with open('assets/st.txt', 'r', encoding='utf-8') as f:
     i = f.read()
     i = i.split(';')
@@ -110,21 +114,19 @@ with open('assets/st.txt', 'r', encoding='utf-8') as f:
         sound = '0'
 
 
+
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = ast[random.randint(0, 11)]
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(WIDTH - self.rect.width)
+        self.radius = 22
+        self.rect.x = random.randint(0, WIDTH - 70)
         self.rect.y = random.randrange(-100, -40)
-        self.speedy = random.randrange(3, 5)
+        self.speedy = random.randrange(2, 4)
 
     def update(self):
         self.rect.y += self.speedy
-        if self.rect.top > HEIGHT + 10:
-            self.rect.x = random.randrange(WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-200, -40)
-            self.speedy = random.randrange(3, 5)
         if self.rect.top >= HEIGHT:
             self.kill()
 
@@ -134,9 +136,11 @@ class Bullet(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = shots[random.randint(0, len(shots) - 1)]
         self.rect = self.image.get_rect()
+        self.radius = 15
         self.rect.bottom = y
         self.rect.centerx = x
-        self.speedy = -8
+
+        self.speedy = -6
 
     def update(self):
         self.rect.y += self.speedy
@@ -150,23 +154,33 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = ships[shipN]
         self.rect = self.image.get_rect()
+        self.radius = 40
+        pygame.draw.circle(self.image, (255, 0, 0), self.rect.center, self.radius)
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
+        self.speed = 0
+        if shipN in [0, 1, 3, 9, 14]:
+            self.speed = 3
+        elif shipN in [2, 7, 8, 5, 6]:
+            self.speed = 2
+        elif shipN in [4, 10, 11, 12, 13]:
+            self.speed = 1
         self.speedx = 0
         self.speedY = 0
+
 
     def update(self):
         self.speedx = 0
         self.speedY = 0
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            self.speedx = -5
+            self.speedx = -self.speed
         if keys[pygame.K_RIGHT]:
-            self.speedx = 5
+            self.speedx = self.speed
         if keys[pygame.K_UP]:
-            self.speedY = -5
+            self.speedY = -self.speed
         if keys[pygame.K_DOWN]:
-            self.speedY = 5
+            self.speedY = self.speed
         self.rect.x += self.speedx
         self.rect.y += self.speedY
         if self.rect.right > WIDTH:
@@ -177,10 +191,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT - 10
         if self.rect.top < HEIGHT // 2:
             self.rect.top = HEIGHT // 2
+        print(self.rect.x, self.rect.y, self.rect.left, self.rect.right)
 
     def shoot(self):
-        sound1.play()
-        bullet = Bullet(self.rect.centerx, self.rect.top)
+        bullet = Bullet(self.rect.centerx, self.rect.top + 15)
         all_sprites.add(bullet)
         bullets.add(bullet)
 
@@ -237,6 +251,7 @@ def options_screen():
 
 def prepair_screen():
     global  shipN
+    screen.blit(wait_bg1, (0, 0))
     if Prepair == True and 15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
         screen.blit(wait_back1, (-50, 665))
     else:
@@ -249,26 +264,25 @@ def prepair_screen():
     pygame.display.update()
 
 def game_lvl1():
-
     if len(mobs) != 0:
         pass
     else:
         if score >= 250:
-            for i in range(random.randint(2, 10)):
+            for i in range(random.randint(3, 12)):
                 m = Mob()
                 all_sprites.add(m)
                 mobs.add(m)
     all_sprites.update()
-    all_sprites.draw(screen)
-
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y1))
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y))
     all_sprites.draw(screen)
-    pygame.display.update()
+    all_sprites.update()
+    pygame.display.flip()
 
 all_sprites = pygame.sprite.Group()
+player = Player()
 mobs = pygame.sprite.Group()
-bullets = pygame.sprite.Group
+bullets = pygame.sprite.Group()
 
 
 
@@ -283,25 +297,35 @@ while running:
                 game = False
                 wait_screen = True
                 score = 0
-                mobs = set()
+                mobs = pygame.sprite.Group()
                 all_sprites = pygame.sprite.Group()
                 sound2.stop()
+                if sound == '1':
+                    pygame.mixer.music.play(-1)
                 shootTiming = 0
+
             if event.key == pygame.K_SPACE:
                 if score - shootTiming >= 15:
+                    sound1.play()
                     player.shoot()
                     shootTiming = score
+
         if event.type == pygame.KEYDOWN and game is False:
             if event.key == pygame.K_TAB:
                 game = True
                 for i in mobs:
                     i.kill()
-                x, y = 248, 690
+                # x, y = 248, 690
                 bg_y = -800
                 bg_y1 = -1600
                 ch_y = 5
                 ch_y1 = 0
-    if event.type == pygame.MOUSEBUTTONDOWN:
+                score = 0
+                shootTiming = 0
+                player.rect.centerx = WIDTH / 2
+                player.rect.bottom = HEIGHT - 10
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
             if Guide == False and Options == False and wait_screen == True and Prepair == False and \
                     210 <= pygame.mouse.get_pos()[0] <= 400 and 580 <= pygame.mouse.get_pos()[1] <= 620:
                 Guide = True
@@ -319,6 +343,7 @@ while running:
             if Options == True and 15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
                 Options = False
                 wait_screen = True
+
             if Options == True and 115 <= pygame.mouse.get_pos()[0] <= 530 and 210 <= pygame.mouse.get_pos()[1] <= 255:
                 if sound == '1':
                     sound = '0'
@@ -330,6 +355,7 @@ while running:
                     pygame.mixer.music.stop()
                 with open('assets/st.txt', 'w', encoding='utf-8') as f:
                     f.write(f'0;0;{sound};')
+
             if Guide == False and wait_screen == True and Options == False and \
                     210 <= pygame.mouse.get_pos()[0] <= 400 and 480 <= pygame.mouse.get_pos()[1] <= 520:
                 seconds = 0
@@ -339,16 +365,13 @@ while running:
 
             if Prepair == True and Guide == False and Options == False and wait_screen == False and \
                     15 <= pygame.mouse.get_pos()[0] <= 200 and 745 <= pygame.mouse.get_pos()[1] <= 785:
-                Prepair = False
                 wait_screen = True
+                Prepair = False
 
             if Prepair == True and Guide == False and Options == False and wait_screen == False and \
                     170 <= pygame.mouse.get_pos()[0] <= 210 and 405 <= pygame.mouse.get_pos()[1] <= 440:
-                if shipN - 1 < 0:
-                    pass
-                else:
+                if shipN - 1 >= 0:
                     shipN -= 1
-                print(shipN)
 
             if Prepair == True and Guide == False and Options == False and wait_screen == False and \
                     380 <= pygame.mouse.get_pos()[0] <= 425 and 400 <= pygame.mouse.get_pos()[1] <= 435:
@@ -356,12 +379,26 @@ while running:
                     pass
                 else:
                     pygame.mixer.music.stop()
+                    Prepair = False
+                    screen.fill((0, 0, 0))
                     shipN += 1
                     game = True
-                    Prepair = False
                     player = Player()
-                    sound2.play(-1)
+                    if sound == '1':
+                        sound2.play(-1)
                     all_sprites.add(player)
+
+    all_sprites.update()
+    if len(mobs) != 0:
+        hits = pygame.sprite.groupcollide(mobs, bullets, True, True, pygame.sprite.collide_circle)
+        for hit in hits:
+            m = Mob()
+            all_sprites.add(m)
+            mobs.add(m)
+
+    hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
+    if hits:
+        game = False
 
     all_sprites.update()
     if wait_screen and Guide == False and Options == False and Prepair == False and game == False:
@@ -374,7 +411,6 @@ while running:
         screen.blit(wait_bg1, (0, 0))
         options_screen()
     elif Prepair:
-        screen.blit(wait_bg1, (0, 0))
         prepair_screen()
     elif game:
         if bg_y + 5 >= 0:
@@ -389,17 +425,17 @@ while running:
             ch_y1 = 0
         game_lvl1()
         score += 1
+        bg_y += ch_y
+        bg_y1 += ch_y1
     else:
-        x, y = 248, 690
         bg_y = -800
         bg_y1 = -1600
         ch_y = 5
         ch_y1 = 0
 
-    bg_y += ch_y
-    bg_y1 += ch_y1
+
     print(all_sprites, shipN)
-    print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs), score)
+    print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs), score, game, wait_screen, Prepair, bg_y, bg_y1)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
