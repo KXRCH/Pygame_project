@@ -8,6 +8,7 @@ from pygame.sprite import Sprite
 pygame.init()
 pygame.mixer.init()
 
+
 '''Основыне переменные'''
 shootTiming = 0
 score = 0
@@ -272,7 +273,7 @@ def new():
 def draw_wait_screen():
     screen.blit(wait_name1, (50, -150))
     # Анимация смены цвета кнопки
-    if Guide == False and wait_screen == True and \
+    if Guide == False and wait_screen == True and\
             210 <= pygame.mouse.get_pos()[0] <= 400 and\
             530 <= pygame.mouse.get_pos()[1] <= 570:
         screen.blit(wait_opt1, (150, 450))
@@ -384,10 +385,10 @@ def prepair_screen():
     elif shipN == 7 and int(best_score) < 4886:
         draw_text(screen, (f'You need to overcome 4886 score points'),
                   25, WIDTH / 2, 500)
-    elif shipN == 9 or shipN == 10 and int(best_score) < 5686:
+    elif shipN == 9 and int(best_score) < 5686 or shipN == 10 and int(best_score) < 5686:
         draw_text(screen, (f'You need to overcome 5686 score points'),
                   25, WIDTH / 2, 500)
-    elif shipN == 12 or shipN == 13 and int(best_score) < 6375:
+    elif shipN == 12 and int(best_score) < 6375 or shipN == 13 and int(best_score) < 6375:
         draw_text(screen, (f'You need to overcome 6375 score points'),
                   25, WIDTH / 2, 500)
     elif shipN == 14 and int(best_score) < 25999:
