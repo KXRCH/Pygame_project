@@ -80,6 +80,10 @@ ships/ship ({i}).png'), (95, 95)).convert_alpha()
 ships1 = [pygame.transform.scale(pygame.image.load(f'assets/\
 ships/ship ({i}).png'), (150, 150)).convert_alpha()
     for i in range(1, 16)]
+enemys = [pygame.transform.rotate((pygame.transform.scale(pygame.image.load(f'assets/\
+ships/enemys/Enemys ({i}).png'), (85, 85))), 180).convert_alpha()
+          for i in range(1, 7)]
+
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
 
 keys = pygame.image.load(f'assets/keys/key.png')
@@ -163,6 +167,17 @@ with open('assets/st.txt', 'r', encoding='utf-8') as f:
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+        self.image = enemys[random.randint(0, 5)]
+        self.rect = self.image.get_rect()
+        self.radius = 42
+        self.rect.x = random.randint(0, WIDTH - 70)
+        self.rect.y = random.randrange(-200, -40)
+        self.speedy = random.randrange(1, 2)
+
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.top >= HEIGHT:
+            self.kill()
 
 
 '''Класс мовоб'''
@@ -272,6 +287,11 @@ def new():
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
+
+def new_enemy():
+    e = Enemy()
+    all_sprites.add(e)
+    enemys1.add(e)
 
 
 '''Функция главного экрана'''
@@ -435,6 +455,9 @@ def game_lvl1():
         if score >= 250:
             for i in range(random.randint(3, 12)):
                 new()
+    if len(enemys1) < 2:
+        for i in range(random.randint(1, 3)):
+            new_enemy()
 
     all_sprites.update()
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y1))
@@ -464,6 +487,7 @@ def draw_text(surf, text, size, x, y):
 all_sprites = pygame.sprite.Group()
 player = Player()
 mobs = pygame.sprite.Group()
+enemys1 = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 
 
