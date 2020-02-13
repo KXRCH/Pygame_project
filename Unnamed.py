@@ -94,6 +94,8 @@ wait_bg = pygame.image.load(f'assets/Main/bg.png')
 wait_text1 = pygame.image.load(f'assets/Main/text1.png')
 wait_name1 = pygame.image.load(f'assets/Main/name1.png')
 
+shield = pygame.transform.scale(pygame.image.load(f'assets/ships/shield1.png'), (130, 130))
+
 wait_text1 = pygame.transform.scale(wait_text1, (500, 500))
 wait_name1 = pygame.transform.scale(wait_name1, (500, 500))
 
@@ -444,6 +446,11 @@ def prepair_screen():
 
 def game_lvl1():
     global anim
+    score_last = 0
+    if score == 2500:
+        for i in range(random.randint(1, 3)):
+            new_enemy()
+            score_last = score
     if anim + 1 >= FPS:
         anim = 0
     if anim == 71:
@@ -456,8 +463,11 @@ def game_lvl1():
             for i in range(random.randint(3, 12)):
                 new()
     if len(enemys1) < 2:
-        for i in range(random.randint(1, 3)):
-            new_enemy()
+        if score >= 2500:
+            if score - score_last == random.randint(350, 750):
+                for i in range(random.randint(1, 3)):
+                    new_enemy()
+                    score_last = score
 
     all_sprites.update()
     screen.blit(pygame.transform.scale(lvl1_bg, (600, 1600)), (0, bg_y1))
@@ -470,6 +480,8 @@ def game_lvl1():
     draw_text(screen, (f'Best score: {best_score}'), 25, WIDTH / 2, 40)
     draw_text(screen, (f'Strength: {strength}'), 25, WIDTH - 100, 10)
     all_sprites.update()
+    if invulnerability != 0 and score - invulnerability <= 50:
+        screen.blit(shield, (player.rect.centerx - 95 // 2 - 21, player.rect.centery - 95 // 2 - 10))
     pygame.display.flip()
 
 
@@ -767,7 +779,6 @@ while running:
             Game = False
             invulnerability = 0
             LOSE()
-
     all_sprites.update()
     '''Проверка на включенный в данным момент экран'''
     if Wait_screen and Guide == False and Options == False and\
@@ -812,6 +823,7 @@ while running:
     with open('assets/st.txt', 'w', encoding='utf-8') as f:
         f.write(f'{best_score};{FPS_MODE};{sound};')
 
+    print(player.rect.centerx, player.rect.centery)
     # print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs),
     #       score, Game, Wait_screen, Prepair, bg_y, bg_y1, shipN)
     pygame.display.flip()
