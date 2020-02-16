@@ -69,6 +69,14 @@ ast = [pygame.transform.scale(pygame.image.load(f'assets/\
 Asteroids/Mini/{i}.png').convert_alpha(), (85, 85))
        for i in range(1, 13)]
 
+shots1 = [pygame.transform.scale(pygame.image.load(f'assets/\
+shots/shot_1_{i}.png').convert_alpha(), (35, 35))
+         for i in range(1, 4)]
+
+shots2 = [pygame.transform.scale(pygame.image.load(f'assets/\
+shots/shot_2_{i}.png').convert_alpha(), (35, 35))
+         for i in range(1, 4)]
+
 shots = [pygame.transform.scale(pygame.image.load(f'assets/\
 shots/shot{i}.png').convert_alpha(), (35, 35))
          for i in range(1, 4)]
@@ -148,23 +156,27 @@ lose_scr = pygame.image.load(f'assets/Main/LOSE.png')
 """Загрузка настроек и сохранений из файла"""
 global sound
 sound = 0
-with open('assets/st.txt', 'r', encoding='utf-8') as f:
-    i = f.read()
-    i = i.split(';')
-    if i[0] == '':
-        with open('assets/st.txt', 'w', encoding='utf-8') as f:
-            f.write(f'0;0;1;')
-    else:
-        if i[2] == '1':
-            sound = '1'
-            pygame.mixer.music.play(-1)
+if os.path.exists('user.config'):
+    with open('user.config', 'r', encoding='utf-8') as f:
+        i = f.read()
+        i = i.split()
+        if i == []:
+            with open('user.config', 'w', encoding='utf-8') as f:
+                f.write(f'0\nFalse\n1')
         else:
-            sound = '0'
-        if i[1] == 'True':
-            FPS_MODE = True
-        else:
-            FPS_MODE = False
-        best_score = i[0]
+            if i[2] == '1':
+                sound = '1'
+                pygame.mixer.music.play(-1)
+            else:
+                sound = '0'
+            if i[1] == 'True':
+                FPS_MODE = True
+            else:
+                FPS_MODE = False
+            best_score = i[0]
+else:
+    with open('user.config', 'w', encoding='utf-8') as f:
+        f.write(f'0\nFalse\n1')
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -174,10 +186,19 @@ class Enemy(pygame.sprite.Sprite):
         self.radius = 42
         self.rect.x = random.randint(0, WIDTH - 70)
         self.rect.y = random.randrange(-200, -40)
-        self.speedy = random.randrange(1, 2)
+        self.speedy = 2
+        self.speedx = 0
 
     def update(self):
         self.rect.y += self.speedy
+        # self.rect.x += self.speedx
+        if self.rect.y == 100:
+            self.speedy = 0
+            self.speedx = 2
+        if self.rect.right == WIDTH:
+            self.speedy = -self.speedy
+        if self.rect.left == 0:
+            self.speedy = -self.speedy
         if self.rect.top >= HEIGHT:
             self.kill()
 
@@ -206,12 +227,17 @@ class Mob(pygame.sprite.Sprite):
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = shots[random.randint(0, len(shots) - 1)]
+        if shipN in [4, 11, 12]:
+            self.image = shots1[random.randint(0, len(shots1) - 1)]
+        elif shipN in [13, 8, 6]:
+            self.image = shots2[random.randint(0, len(shots2) - 1)]
+        else:
+            self.image = shots[random.randint(0, len(shots) - 1)]
         self.rect = self.image.get_rect()
         self.radius = 15
         self.rect.bottom = y
         self.rect.centerx = x
-        self.speedy = -6
+        self.speedy = -4
 
     def update(self):
         self.rect.y += self.speedy
@@ -239,7 +265,7 @@ class Player(pygame.sprite.Sprite):
         elif shipN in [2, 7, 8, 5, 6]:
             self.speed = 2
             strength = 4
-        elif shipN in [4, 10, 11, 12]:
+        elif shipN in [4, 10, 11, 12, 13]:
             self.speed = 1
             strength = 5
         elif shipN == 14:
@@ -274,7 +300,7 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         """Задаётся стрельба из 2 орудий для определённых кораблей"""
-        if shipN in [4, 11, 12, 13, 8, 6]:
+        if shipN in [4, 11, 12, 13, 8, 6, 13]:
             bullet1 = Bullet(self.rect.centerx - 25, self.rect.top)
             bullet2 = Bullet(self.rect.centerx + 25, self.rect.top)
             all_sprites.add(bullet1, bullet2)
@@ -462,10 +488,10 @@ def game_lvl1():
         if score >= 250:
             for i in range(random.randint(3, 12)):
                 new()
-    if len(enemys1) < 2:
+    if len(enemys1) < 1:
         if score >= 2500:
             if score - score_last == random.randint(350, 750):
-                for i in range(random.randint(1, 3)):
+                for i in range(1):
                     new_enemy()
                     score_last = score
 
@@ -821,7 +847,9 @@ while running:
 
     '''Запись лучшего счёта в файл'''
     with open('assets/st.txt', 'w', encoding='utf-8') as f:
-        f.write(f'{best_score};{FPS_MODE};{sound};')
+        f.write(f'{best_score}\n{FPS_MODE}\n{sound}')
+    with open('user.config', 'w', encoding='utf-8') as f:
+        f.write(f'{best_score}\n{FPS_MODE}\n{sound}')
 
     print(player.rect.centerx, player.rect.centery)
     # print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs),
