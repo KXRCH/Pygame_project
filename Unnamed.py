@@ -3,6 +3,8 @@ import pygame
 import random
 from pygame.locals import *
 from pygame.sprite import Sprite
+import datetime
+
 
 
 pygame.init()
@@ -16,7 +18,8 @@ best_score = 0
 FPS = 120
 anim = 0
 FPS_MODE = False
-
+Money = 0
+sound = 0
 '''Переменная ХП'''
 strength = 0
 
@@ -150,8 +153,6 @@ start_bt1 = pygame.transform.scale(start_bt1, (300, 200))
 lose_scr = pygame.image.load(f'assets/Main/LOSE.png')
 
 """Загрузка настроек и сохранений из файла"""
-global sound
-sound = 0
 if os.path.exists('user.config'):
     with open('user.config', 'r', encoding='utf-8') as f:
         i = f.read()
@@ -160,19 +161,20 @@ if os.path.exists('user.config'):
             with open('user.config', 'w', encoding='utf-8') as f:
                 f.write(f'0\nFalse\n1')
         else:
-            if i[2] == '1':
+            if i[3] == '1':
                 sound = '1'
                 pygame.mixer.music.play(-1)
             else:
                 sound = '0'
-            if i[1] == 'True':
+            if i[2] == 'True':
                 FPS_MODE = True
             else:
                 FPS_MODE = False
             best_score = i[0]
+            Money = i[1]
 else:
     with open('user.config', 'w', encoding='utf-8') as f:
-        f.write(f'0\nFalse\n1')
+        f.write(f'0\n0\nFalse\n1')
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -356,9 +358,11 @@ def draw_wait_screen():
 
 
 def LOSE():
+    global Money
     screen.blit(lose_scr, (0, 40))
     lose_sound.play()
     sound2.stop()
+    Money += score // 7
     pygame.display.update()
 
 
@@ -426,7 +430,7 @@ def prepair_screen():
         screen.blit(start_bt1, (335, 665))
     else:
         screen.blit(start_bt, (335, 665))
-
+    draw_text(screen, (f'Money: {Money}'), 25, WIDTH - 100, 10)
     screen.blit(pygame.transform.scale(arrow1, (45, 50)), (380, 393))
     screen.blit(pygame.transform.scale(arrow2, (45, 50)), (170, 400))
     screen.blit(pygame.transform.scale(ships1[shipN], (150, 150)), (225, 350))
@@ -842,14 +846,14 @@ while running:
         ch_y1 = 0
 
     '''Запись лучшего счёта в файл'''
-    with open('assets/st.txt', 'w', encoding='utf-8') as f:
-        f.write(f'{best_score}\n{FPS_MODE}\n{sound}')
     with open('user.config', 'w', encoding='utf-8') as f:
-        f.write(f'{best_score}\n{FPS_MODE}\n{sound}')
+        f.write(f'{best_score}\n{Money}\n{FPS_MODE}\n{sound}')
 
-    print(player.rect.centerx, player.rect.centery)
+    # print(player.rect.centerx, player.rect.centery)
     # print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs),
     #       score, Game, Wait_screen, Prepair, bg_y, bg_y1, shipN)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
+with open('user.config', 'w', encoding='utf-8') as f:
+    f.write(f'{best_score}\n{Money}\n{FPS_MODE}\n{sound}\n{datetime.datetime.now()}')
