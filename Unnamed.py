@@ -159,7 +159,8 @@ if os.path.exists('user.config'):
         i = i.split()
         if i == []:
             with open('user.config', 'w', encoding='utf-8') as f:
-                f.write(f'0\nFalse\n1')
+                f.write(f'0\n0\nFalse\n1')
+                pygame.mixer.music.play(-1)
         else:
             if i[3] == '1':
                 sound = '1'
@@ -361,9 +362,10 @@ def draw_wait_screen():
 def LOSE():
     global Money
     screen.blit(lose_scr, (0, 40))
+    draw_text(screen, (f'Galactic dollars +{int(score) // 7}'), 35, WIDTH / 2, 250)
     lose_sound.play()
     sound2.stop()
-    Money += score // 7
+    Money = int(Money) + int(score) // 7
     pygame.display.update()
 
 
@@ -438,34 +440,40 @@ def prepair_screen():
 
     '''Требования для открытия корабля'''
     if shipN == 3 and int(best_score) < 3000:
-        draw_text(screen, (f'You need to overcome 3000 score points'),
+        draw_text(screen, (f'Price: 1500 Galactic Dollars'),
                   25, WIDTH / 2, 500)
+        draw_text(screen, (f'Info: Ordinary galactic ranger ship'),
+                  25, WIDTH / 2, 550)
     elif shipN == 4 and int(best_score) < 3650:
-        draw_text(screen, (f'You need to overcome 3650 score points'),
+        draw_text(screen, (f'Price: 2250 Galactic Dollars'),
                   25, WIDTH / 2, 500)
+        draw_text(screen, (f'Info: The big ship.'),
+                  25, WIDTH / 2, 550)
+        draw_text(screen, (f'At first glance, has no features...'),
+                  25, WIDTH / 2, 575)
     elif shipN == 5 and int(best_score) < 4075:
-        draw_text(screen, (f'You need to overcome 4075 score points'),
+        draw_text(screen, (f'Price: 3150 Galactic Dollars'),
                   25, WIDTH / 2, 500)
     elif shipN == 7 and int(best_score) < 4886:
-        draw_text(screen, (f'You need to overcome 4886 score points'),
+        draw_text(screen, (f'Price: 4261 Galactic Dollars'),
                   25, WIDTH / 2, 500)
     elif shipN == 9 and int(best_score) < 5686 or shipN == 10 and int(best_score) < 5686:
-        draw_text(screen, (f'You need to overcome 5686 score points'),
+        draw_text(screen, (f'Price: 6456 Galactic Dollars'),
                   25, WIDTH / 2, 500)
     elif shipN == 12 and int(best_score) < 6375 or shipN == 13 and int(best_score) < 6375:
-        draw_text(screen, (f'You need to overcome 6375 score points'),
+        draw_text(screen, (f'Price: 7001 Galactic Dollars'),
                   25, WIDTH / 2, 500)
     elif shipN == 14 and int(best_score) < 25999:
-        draw_text(screen, (f'You need to overcome 25999 score points'),
+        draw_text(screen, (f'Price: 25003 Galactic Dollars'),
                   25, WIDTH / 2, 500)
     elif shipN == 8 and int(best_score) < 8981:
-        draw_text(screen, (f'You need to overcome 8981 score points'),
+        draw_text(screen, (f'Price: 8441 Galactic Dollars'),
                   25, WIDTH / 2, 500)
     elif shipN == 11 and int(best_score) < 9712:
-        draw_text(screen, (f'You need to overcome 9712 score points'),
+        draw_text(screen, (f'Price: 15574 Galactic Dollars'),
                   25, WIDTH / 2, 500)
     elif shipN == 6 and int(best_score) < 7654:
-        draw_text(screen, (f'You need to overcome 7654 score points'),
+        draw_text(screen, (f'Price: 9452 Galactic Dollars'),
                   25, WIDTH / 2, 500)
 
     pygame.display.update()
@@ -796,7 +804,7 @@ while running:
                 new()
                 dam_sound.play()
             else:
-                if score - invulnerability >= 50:
+                if score - invulnerability >= 75:
                     strength -= 1
                     new()
                     dam_sound.play()
