@@ -43,10 +43,6 @@ Guide = False
 Wait_screen = True
 Prepair = False
 Game = False
-RIGHT = False
-DOWN = False
-UP = False
-LEFT = False
 LOSE = False
 
 '''Загрузка звуков'''
