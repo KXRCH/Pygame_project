@@ -19,7 +19,7 @@ FPS = 120
 anim = 0
 FPS_MODE = False
 Money = 0
-sound = 0
+sound = '1'
 '''Переменная ХП'''
 strength = 0
 
@@ -175,6 +175,7 @@ if os.path.exists('user.config'):
 else:
     with open('user.config', 'w', encoding='utf-8') as f:
         f.write(f'0\n0\nFalse\n1')
+        pygame.mixer.music.play(-1)
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
