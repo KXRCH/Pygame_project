@@ -805,7 +805,9 @@ while running:
             Game = False
             invulnerability = 0
             LOSE()
+
     all_sprites.update()
+
     '''Проверка на включенный в данным момент экран'''
     if Wait_screen and Guide is False and Options is False and \
             Prepair is False and Game is False:
