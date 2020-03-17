@@ -5,10 +5,8 @@ from pygame.locals import *
 from pygame.sprite import Sprite
 import datetime
 
-
 pygame.init()
 pygame.mixer.init()
-
 
 '''Основыне переменные'''
 shootTiming = 0
@@ -61,7 +59,7 @@ dam_sound.set_volume(0.6)
 '''Загрузка текстур кораблей, мобов, кнопок, фонов'''
 exp = [pygame.transform.scale(pygame.image.load(f'assets/\
 PNG/expl ({i}).png'), (90, 90))
-    for i in range(1, 72)]
+       for i in range(1, 72)]
 
 ast = [pygame.transform.scale(pygame.image.load(f'assets/\
 Asteroids/Mini/{i}.png').convert_alpha(), (85, 85))
@@ -83,11 +81,11 @@ shots/shot{i}.png').convert_alpha(), (35, 35))
 
 ships = [pygame.transform.scale(pygame.image.load(f'assets/\
 ships/ship ({i}).png'), (95, 95)).convert_alpha()
-    for i in range(1, 16)]
+         for i in range(1, 16)]
 
 ships1 = [pygame.transform.scale(pygame.image.load(f'assets/\
 ships/ship ({i}).png'), (150, 150)).convert_alpha()
-    for i in range(1, 16)]
+          for i in range(1, 16)]
 
 fr = [pygame.image.load(f'assets/keys/{i}.gif') for i in range(0, 23)]
 
@@ -177,7 +175,6 @@ else:
         f.write(f'0\n0\nFalse\n1')
         pygame.mixer.music.play(-1)
 
-
 '''Класс астеройдов'''
 
 
@@ -203,7 +200,7 @@ class Mob(pygame.sprite.Sprite):
         self.rot_speed = random.randrange(-5, 5)
         self.last_update = pygame.time.get_ticks()
 
-# Анимация вращения астеройдов
+    # Анимация вращения астеройдов
 
     def rotate(self):
         now = pygame.time.get_ticks()
@@ -329,8 +326,8 @@ def new():
 def draw_wait_screen():
     screen.blit(wait_name1, (50, -150))
     # Анимация смены цвета кнопки
-    if Guide is False and Wait_screen is True and\
-            210 <= pygame.mouse.get_pos()[0] <= 400 and\
+    if Guide is False and Wait_screen is True and \
+            210 <= pygame.mouse.get_pos()[0] <= 400 and \
             530 <= pygame.mouse.get_pos()[1] <= 570:
         screen.blit(wait_opt1, (150, 450))
     else:
@@ -338,7 +335,7 @@ def draw_wait_screen():
 
     # Анимация смены цвета кнопки
     if Guide is False and Wait_screen is True and \
-            210 <= pygame.mouse.get_pos()[0] <= 400 and\
+            210 <= pygame.mouse.get_pos()[0] <= 400 and \
             480 <= pygame.mouse.get_pos()[1] <= 520:
         screen.blit(wait_play1, (150, 400))
     else:
@@ -346,7 +343,7 @@ def draw_wait_screen():
 
     # Анимация смены цвета кнопки
     if Guide is False and Wait_screen is True and \
-            210 <= pygame.mouse.get_pos()[0] <= 400 and\
+            210 <= pygame.mouse.get_pos()[0] <= 400 and \
             580 <= pygame.mouse.get_pos()[1] <= 620:
         screen.blit(wait_guide1, (150, 500))
     else:
@@ -382,8 +379,8 @@ def guide_screen():
     screen.blit(pygame.transform.scale(fr[anim // 6].convert_alpha(),
                                        (300, 300)), (150, 350))
     draw_text(screen, ('For shooting use SPACE'), 35, WIDTH / 2, 10)
-    if Guide is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and\
-       745 <= pygame.mouse.get_pos()[1] <= 785:
+    if Guide is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and \
+            745 <= pygame.mouse.get_pos()[1] <= 785:
         screen.blit(wait_back1, (-50, 665))
     else:
         screen.blit(wait_back, (-50, 665))
@@ -398,8 +395,8 @@ def guide_screen():
 
 def options_screen():
     # Анимация смены цвета кнопки
-    if Options is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and\
-       745 <= pygame.mouse.get_pos()[1] <= 785:
+    if Options is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and \
+            745 <= pygame.mouse.get_pos()[1] <= 785:
         screen.blit(wait_back1, (-50, 665))
     else:
         screen.blit(wait_back, (-50, 665))
@@ -424,15 +421,15 @@ def prepair_screen():
     if FPS_MODE:
         draw_text(screen, str(int(clock.get_fps())), 15, 10, 0)
     '''Анимация смены цвета кнопки'''
-    if Prepair is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and\
-       745 <= pygame.mouse.get_pos()[1] <= 785:
+    if Prepair is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and \
+            745 <= pygame.mouse.get_pos()[1] <= 785:
         screen.blit(wait_back1, (-50, 665))
     else:
         screen.blit(wait_back, (-50, 665))
 
     '''Анимация смены цвета кнопки'''
-    if Prepair is True and 395 <= pygame.mouse.get_pos()[0] <= 585 and\
-       745 <= pygame.mouse.get_pos()[1] <= 785:
+    if Prepair is True and 395 <= pygame.mouse.get_pos()[0] <= 585 and \
+            745 <= pygame.mouse.get_pos()[1] <= 785:
         screen.blit(start_bt1, (335, 665))
     else:
         screen.blit(start_bt, (335, 665))
@@ -443,42 +440,36 @@ def prepair_screen():
         ships1[shipN], (150, 150)), (225, 350))
 
     '''Требования для открытия корабля'''
-    if shipN == 3 and int(best_score) < 3000:
+    if shipN == 3 and int(Money) < 1500:
         draw_text(screen, (f'Price: 1500 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-        draw_text(screen, (f'Info: Ordinary galactic ranger ship'),
-                  25, WIDTH / 2, 550)
-    elif shipN == 4 and int(best_score) < 3650:
+    elif shipN == 4 and int(Money) < 2250:
         draw_text(screen, (f'Price: 2250 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-        draw_text(screen, (f'Info: The big ship.'),
-                  25, WIDTH / 2, 550)
-        draw_text(screen, (f'At first glance, has no features...'),
-                  25, WIDTH / 2, 575)
-    elif shipN == 5 and int(best_score) < 4075:
+    elif shipN == 5 and int(Money) < 3150:
         draw_text(screen, (f'Price: 3150 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-    elif shipN == 7 and int(best_score) < 4886:
+    elif shipN == 7 and int(Money) < 4261:
         draw_text(screen, (f'Price: 4261 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-    elif shipN == 9 and int(best_score) < 5686 or shipN == 10 and\
-    int(best_score) < 5686:
+    elif shipN == 9 and int(Money) < 6456 or shipN == 10 and \
+            int(Money) < 6456:
         draw_text(screen, (f'Price: 6456 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-    elif shipN == 12 and int(best_score) < 6375 or shipN == 13 and\
-    int(best_score) < 6375:
+    elif shipN == 12 and int(Money) < 7001 or shipN == 13 and \
+            int(Money) < 7001:
         draw_text(screen, (f'Price: 7001 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-    elif shipN == 14 and int(best_score) < 25999:
+    elif shipN == 14 and int(Money) < 25003:
         draw_text(screen, (f'Price: 25003 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-    elif shipN == 8 and int(best_score) < 8981:
+    elif shipN == 8 and int(Money) < 8981:
         draw_text(screen, (f'Price: 8441 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-    elif shipN == 11 and int(best_score) < 9712:
+    elif shipN == 11 and int(Money) < 15574:
         draw_text(screen, (f'Price: 15574 Galactic Dollars'),
                   25, WIDTH / 2, 500)
-    elif shipN == 6 and int(best_score) < 7654:
+    elif shipN == 6 and int(Money) < 9452:
         draw_text(screen, (f'Price: 9452 Galactic Dollars'),
                   25, WIDTH / 2, 500)
 
@@ -535,7 +526,6 @@ all_sprites = pygame.sprite.Group()
 player = Player()
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
-
 
 '''Игровой цикл'''
 running = True
@@ -598,37 +588,37 @@ while running:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             '''Проверка нажатия на кнопку Guide'''
-            if Guide is False and Options is False and Wait_screen is True and\
-               Prepair is False and \
-                    210 <= pygame.mouse.get_pos()[0] <= 400 and\
+            if Guide is False and Options is False and Wait_screen is True and \
+                    Prepair is False and \
+                    210 <= pygame.mouse.get_pos()[0] <= 400 and \
                     580 <= pygame.mouse.get_pos()[1] <= 620:
                 Guide = True
                 Wait_screen = False
                 anim = 0
 
             '''Проверка нажатия на кнопку Back'''
-            if Guide is True and 5 <= pygame.mouse.get_pos()[0] <= 195 and\
-               755 <= pygame.mouse.get_pos()[1] <= 795:
+            if Guide is True and 5 <= pygame.mouse.get_pos()[0] <= 195 and \
+                    755 <= pygame.mouse.get_pos()[1] <= 795:
                 Guide = False
                 Wait_screen = True
 
             '''Проверка нажатия на кнопку Options'''
-            if Options is False and Wait_screen is True and Guide is False and\
-                    210 <= pygame.mouse.get_pos()[0] <= 400 and\
+            if Options is False and Wait_screen is True and Guide is False and \
+                    210 <= pygame.mouse.get_pos()[0] <= 400 and \
                     530 <= pygame.mouse.get_pos()[1] <= 570:
                 Options = True
                 Wait_screen = False
 
             '''Проверка нажатия на кнопку Back'''
-            if Options is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and\
-               745 <= pygame.mouse.get_pos()[1] <= 785:
+            if Options is True and 15 <= pygame.mouse.get_pos()[0] <= 200 and \
+                    745 <= pygame.mouse.get_pos()[1] <= 785:
                 Options = False
                 Wait_screen = True
 
             '''Проверка нажатия на кнопку вкл/выкл музыки и
             запись параметра в файл'''
-            if Options is True and 115 <= pygame.mouse.get_pos()[0] <= 530 and\
-               210 <= pygame.mouse.get_pos()[1] <= 255:
+            if Options is True and 115 <= pygame.mouse.get_pos()[0] <= 530 and \
+                    210 <= pygame.mouse.get_pos()[1] <= 255:
                 if sound == '1':
                     sound = '0'
                 else:
@@ -641,32 +631,32 @@ while running:
                     f.write(f'{best_score};0;{sound};')
 
             '''Проверка нажатия на кнопку Play'''
-            if Guide is False and Wait_screen is True and Options is False and\
-                    210 <= pygame.mouse.get_pos()[0] <= 400 and\
+            if Guide is False and Wait_screen is True and Options is False and \
+                    210 <= pygame.mouse.get_pos()[0] <= 400 and \
                     480 <= pygame.mouse.get_pos()[1] <= 520:
                 screen.fill(pygame.Color("black"))
                 Wait_screen = False
                 Prepair = True
 
             '''Проверка нажатия на кнопку Back'''
-            if Prepair is True and Guide is False and Options is False and\
-               Wait_screen is False and \
-                    15 <= pygame.mouse.get_pos()[0] <= 200 and\
+            if Prepair is True and Guide is False and Options is False and \
+                    Wait_screen is False and \
+                    15 <= pygame.mouse.get_pos()[0] <= 200 and \
                     745 <= pygame.mouse.get_pos()[1] <= 785:
                 Wait_screen = True
                 Prepair = False
 
             '''Проверка нажатия на кнопку Выбора корабля влево'''
-            if Prepair is True and Guide is False and Options is False and\
-               Wait_screen is False and \
-                    170 <= pygame.mouse.get_pos()[0] <= 210 and\
+            if Prepair is True and Guide is False and Options is False and \
+                    Wait_screen is False and \
+                    170 <= pygame.mouse.get_pos()[0] <= 210 and \
                     405 <= pygame.mouse.get_pos()[1] <= 440:
                 if shipN - 1 >= 0:
                     shipN -= 1
             '''Проверка нажатия на кнопку Выбора корабля вправо'''
-            if Prepair is True and Guide is False and\
-               Options is False and Wait_screen is False and \
-                    380 <= pygame.mouse.get_pos()[0] <= 425 and\
+            if Prepair is True and Guide is False and \
+                    Options is False and Wait_screen is False and \
+                    380 <= pygame.mouse.get_pos()[0] <= 425 and \
                     400 <= pygame.mouse.get_pos()[1] <= 435:
                 if shipN == 14:
                     pass
@@ -675,13 +665,13 @@ while running:
                     shipN += 1
 
             '''Проверка нажатия на кнопку Start'''
-            if Prepair is True and Guide is False and\
-               Options is False and Wait_screen is False and\
-                    395 <= pygame.mouse.get_pos()[0] <= 585 and\
+            if Prepair is True and Guide is False and \
+                    Options is False and Wait_screen is False and \
+                    395 <= pygame.mouse.get_pos()[0] <= 585 and \
                     745 <= pygame.mouse.get_pos()[1] <= 785:
                 """Проверка на наличие достаточного кол-во очков,
                 чтобы использовать корабль"""
-                if shipN == 3 and int(best_score) >= 3000:
+                if shipN == 3 and int(Money) >= 1500:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -690,7 +680,7 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 4 and int(best_score) >= 3650:
+                elif shipN == 4 and int(Money) >= 2250:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -699,7 +689,7 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 5 and int(best_score) >= 4075:
+                elif shipN == 5 and int(Money) >= 3150:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -708,7 +698,7 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 7 and int(best_score) >= 4886:
+                elif shipN == 7 and int(Money) >= 4261:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -717,7 +707,8 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 9 or shipN == 10 and int(best_score) >= 5686:
+                elif shipN == 9 and int(Money) >= 6456 or \
+                        shipN == 10 and int(Money) >= 6456:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -726,7 +717,8 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 12 or shipN == 13 and int(best_score) >= 6375:
+                elif shipN == 12 and int(Money) >= 7001 or shipN == 13 and \
+                        int(Money) >= 7001:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -735,7 +727,7 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 14 and int(best_score) >= 25999:
+                elif shipN == 14 and int(Money) >= 25003:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -744,7 +736,7 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 8 and int(best_score) >= 8981:
+                elif shipN == 8 and int(Money) >= 8981:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -753,7 +745,7 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 11 and int(best_score) >= 9712:
+                elif shipN == 11 and int(Money) >= 15574:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -762,7 +754,7 @@ while running:
                     if sound == '1':
                         sound2.play(-1)
                     all_sprites.add(player)
-                elif shipN == 6 and int(best_score) >= 7654:
+                elif shipN == 6 and int(Money) >= 9452:
                     '''запус игрового экрана'''
                     pygame.mixer.music.stop()
                     Prepair = False
@@ -815,8 +807,8 @@ while running:
             LOSE()
     all_sprites.update()
     '''Проверка на включенный в данным момент экран'''
-    if Wait_screen and Guide is False and Options is False and\
-       Prepair is False and Game is False:
+    if Wait_screen and Guide is False and Options is False and \
+            Prepair is False and Game is False:
         screen.blit(wait_bg, (-1250, 0))
         draw_wait_screen()
     if Guide:
@@ -857,9 +849,6 @@ while running:
     with open('user.config', 'w', encoding='utf-8') as f:
         f.write(f'{best_score}\n{Money}\n{FPS_MODE}\n{sound}')
 
-    # print(player.rect.centerx, player.rect.centery)
-    # print(pygame.mouse.get_pos(), int(clock.get_fps()), len(mobs),
-    #       score, Game, Wait_screen, Prepair, bg_y, bg_y1, shipN)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
